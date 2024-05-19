@@ -19,7 +19,7 @@ class LanguageBasis(Basis, Variational):
     # alpha_prior: Gamma = attr.ib()
 
     @classmethod
-    def hello():
+    def hello(cls):
         print("Hii, using language model basis!")
 
     # class implementation
