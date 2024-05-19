@@ -16,6 +16,9 @@ Basis
 .. autoclass:: lantern.model.basis.VariationalBasis
                :members:
 
+.. autoclass:: lantern.model.basis.LanguageBasis
+               :members:
+
 Loss
 ====
 
