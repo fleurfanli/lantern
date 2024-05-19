@@ -8,10 +8,11 @@ from lantern.model.basis import Basis
 
 
 @attr.s(cmp=False)
-class LanguageBasis(Basis, Variational):
+class LanguageBasis(Basis):
     """A language model basis for encoding mutational data.
     """
 
+    message: str = attr.ib()
     # W_mu: nn.Parameter = attr.ib()
     # W_log_sigma: nn.Parameter = attr.ib()
     # log_alpha: nn.Parameter = attr.ib()
@@ -20,7 +21,11 @@ class LanguageBasis(Basis, Variational):
 
     @classmethod
     def hello(cls):
-        print("Hii, using language model basis!")
+        message = "Hii, using language model basis!"
+        print("Hello!!")
+        return cls(
+            message
+        )
 
     # class implementation
     # @classmethod
