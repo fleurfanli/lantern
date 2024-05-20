@@ -24,9 +24,7 @@ class LanguageBasis(Basis, Variational):
     def hello(cls):
         message = "Hii, using language model basis!"
         print("Hello!!")
-        return cls(
-            message
-        )
+        return message
 
     @classmethod
     def fromDataset(cls, ds, K, alpha_0=0.001, beta_0=0.001, meanEffectsInit=False):
