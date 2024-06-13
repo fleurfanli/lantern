@@ -111,10 +111,11 @@ class LanguageBasis(Basis, Variational):
 
     def _forward(self, x):
 
+        # idea: only learn the dimensionality i.e. alpha's
         klW, kla, W, alpha = self.kl_loss()
         loss = klW.sum() + kla.sum()
 
-        # embed
+        # embed - replace w/ language model
         z = torch.matmul(x, W)
 
         return z, loss

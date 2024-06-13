@@ -22,15 +22,19 @@ class Model(Module):
             raise ValueError(
                 f"Basis ({self.basis.K}) and surface ({value.Kbasis}) do not have the same dimensionality."
             )
+        
+    def hello(self):
+        message = "Hii, using NEW model w/ language model embeddings in GP!"
+        print("Hello!!")
+        return message
 
     def forward(self, X):
 
-        Z = self.basis(X)
-        f = self.surface(Z)
+        # pass in the embdedding matrix directly
+        f = self.surface(X)
 
         return f
 
     def loss(self, *args, **kwargs):
-        return self.basis.loss(*args, **kwargs) + ELBO_GP.fromModel(
-            self, *args, **kwargs
-        )
+        # only compute loss from the GP part
+        return ELBO_GP.fromModel(self, *args, **kwargs)
