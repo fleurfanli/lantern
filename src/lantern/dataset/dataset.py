@@ -26,6 +26,8 @@ class _Base(TensorDataset):
 
     substitutions: str = attr.ib(default="substitutions")
     phenotypes: List[str] = attr.ib(default=["phenotype"])
+    language: bool = attr.ib(default=True)
+    embed: torch.Tensor = attr.ib(factory=lambda: torch.tensor([]))
     errors: Optional[List[str]] = attr.ib(default=None)
     tokenizer: Tokenizer = attr.ib(default=None, repr=False)
 
@@ -37,6 +39,11 @@ class _Base(TensorDataset):
             raise ValueError(
                 f"Number of error columns ({len(value)}) does not match phenotype columns ({len(self.phenotypes)})"
             )
+        
+    def hello(self):
+        message = "Hii, using NEW model w/ language model embeddings in GP!"
+        print("Hello!!")
+        return message
 
     def __attrs_post_init__(self):
 
@@ -58,7 +65,14 @@ class _Base(TensorDataset):
             self.tokenizer = Tokenizer.fromVariants(substitutions)
 
         # build tensors
-        X = self.tokenizer.tokenize(*substitutions.tolist())
+        if self.language:
+            # using language model embeddings
+            if self.embed.shape[0] != len(phenotypes):
+                print('Embedding matrix has the wrong dimension!')
+            else:
+                X = self.embed
+        else:
+            X = self.tokenizer.tokenize(*substitutions.tolist())
         y = torch.from_numpy(phenotypes.values).float()
 
         if errors is not None:
