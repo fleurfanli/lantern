@@ -92,7 +92,11 @@ class _Base(TensorDataset):
     def p(self):
         """The number of mutations in the dataset
         """
-        return self.tokenizer.p
+        if self.language:
+            # using language model embeddings
+            return self.embed.shape[1]
+        else:
+            return self.tokenizer.p
 
     def to(self, device):
         """Send to device
