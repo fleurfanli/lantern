@@ -1,6 +1,7 @@
 import attr
 import torch
 from torch import nn
+from torch.nn.functional import relu
 from torch.distributions import Gamma, Normal
 from torch.distributions.kl import kl_divergence
 
@@ -109,6 +110,8 @@ class VariationalBasis(Basis, Variational):
 
         # embed
         z = torch.matmul(x, W)
+        # add non-linearity
+        z = relu(z)
 
         return z, loss
 
