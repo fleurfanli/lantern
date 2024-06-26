@@ -41,7 +41,7 @@ class _Base(TensorDataset):
             )
 
     def hello(self):
-        message = "Hii, on branch lfan2 - using Tanh!"
+        message = "Hii, on branch lfan2 - added pre-W layers!"
         print("Hello!!")
         return message
 

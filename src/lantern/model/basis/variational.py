@@ -1,7 +1,7 @@
 import attr
 import torch
 from torch import nn
-from torch.nn.functional import relu
+from torch.nn.functional import relu, leaky_relu
 from torch.distributions import Gamma, Normal
 from torch.distributions.kl import kl_divergence
 
@@ -14,11 +14,27 @@ class VariationalBasis(Basis, Variational):
     """A variational basis for reducing mutational data.
     """
 
-    W_mu: nn.Parameter = attr.ib()
-    W_log_sigma: nn.Parameter = attr.ib()
-    log_alpha: nn.Parameter = attr.ib()
-    log_beta: nn.Parameter = attr.ib()
-    alpha_prior: Gamma = attr.ib()
+    # W_mu: nn.Parameter = attr.ib()
+    # W_log_sigma: nn.Parameter = attr.ib()
+    # log_alpha: nn.Parameter = attr.ib()
+    # log_beta: nn.Parameter = attr.ib()
+    # alpha_prior: Gamma = attr.ib()
+
+    def __init__(self, W_mu, W_log_sigma, log_alpha, log_beta, alpha_prior):
+        super().__init__()
+        self.W_mu = W_mu
+        self.W_log_sigma = W_log_sigma
+        self.log_alpha = log_alpha
+        self.log_beta = log_beta
+        self.alpha_prior = alpha_prior
+
+        # Define additional layers before W
+        self.pre_weight_layers = nn.Sequential(
+            nn.Linear(self.W_mu.shape[0], 128),
+            nn.LeakyReLU(),
+            nn.Linear(128, self.W_mu.shape[0]),
+            nn.LeakyReLU()
+        )
 
     @classmethod
     def fromDataset(cls, ds, K, alpha_0=0.001, beta_0=0.001, meanEffectsInit=False):
@@ -105,13 +121,13 @@ class VariationalBasis(Basis, Variational):
 
     def _forward(self, x):
 
+        x = self.pre_weight_layers(x)
+
         klW, kla, W, alpha = self.kl_loss()
         loss = klW.sum() + kla.sum()
 
         # embed
         z = torch.matmul(x, W)
-        # add non-linearity
-        z = torch.tanh(z)
 
         return z, loss
 
