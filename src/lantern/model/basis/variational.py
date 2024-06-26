@@ -14,27 +14,18 @@ class VariationalBasis(Basis, Variational):
     """A variational basis for reducing mutational data.
     """
 
-    # W_mu: nn.Parameter = attr.ib()
-    # W_log_sigma: nn.Parameter = attr.ib()
-    # log_alpha: nn.Parameter = attr.ib()
-    # log_beta: nn.Parameter = attr.ib()
-    # alpha_prior: Gamma = attr.ib()
+    W_mu: nn.Parameter = attr.ib()
+    W_log_sigma: nn.Parameter = attr.ib()
+    log_alpha: nn.Parameter = attr.ib()
+    log_beta: nn.Parameter = attr.ib()
+    alpha_prior: Gamma = attr.ib()
 
-    def __init__(self, W_mu, W_log_sigma, log_alpha, log_beta, alpha_prior):
-        super().__init__()
-        self.W_mu = W_mu
-        self.W_log_sigma = W_log_sigma
-        self.log_alpha = log_alpha
-        self.log_beta = log_beta
-        self.alpha_prior = alpha_prior
-
-        # Define additional layers before W
-        self.pre_weight_layers = nn.Sequential(
-            nn.Linear(self.W_mu.shape[0], 128),
-            nn.LeakyReLU(),
-            nn.Linear(128, self.W_mu.shape[0]),
-            nn.LeakyReLU()
-        )
+    pre_weight_layers: nn.Sequential = attr.ib(factory=lambda: nn.Sequential(
+        nn.Linear(1280, 128),  # You need to adjust input/output dimensions
+        nn.LeakyReLU(),
+        nn.Linear(1280, 128),
+        nn.LeakyReLU()
+    ))
 
     @classmethod
     def fromDataset(cls, ds, K, alpha_0=0.001, beta_0=0.001, meanEffectsInit=False):
@@ -55,11 +46,17 @@ class VariationalBasis(Basis, Variational):
         log_beta.register_hook(lambda grad: torch.clamp(grad, -10.0, 10.0))
 
         return cls(
-            Wmu,
-            nn.Parameter(torch.randn(p, K) - 3),
-            log_alpha,
-            log_beta,
-            Gamma(alpha_0, beta_0),
+            W_mu=Wmu,
+            W_log_sigma=nn.Parameter(torch.randn(p, K) - 3),
+            log_alpha=log_alpha,
+            log_beta=log_beta,
+            alpha_prior=Gamma(alpha_0, beta_0),
+            pre_weight_layers=nn.Sequential(
+                nn.Linear(p, 128), 
+                nn.LeakyReLU(),
+                nn.Linear(128, p), 
+                nn.LeakyReLU()
+            )
         )
 
     @classmethod
@@ -75,11 +72,17 @@ class VariationalBasis(Basis, Variational):
         log_beta.register_hook(lambda grad: torch.clamp(grad, -10.0, 10.0))
 
         return cls(
-            Wmu,
-            nn.Parameter(torch.randn(p, K) - 3),
-            log_alpha,
-            log_beta,
-            Gamma(alpha_0, beta_0),
+            W_mu=Wmu,
+            W_log_sigma=nn.Parameter(torch.randn(p, K) - 3),
+            log_alpha=log_alpha,
+            log_beta=log_beta,
+            alpha_prior=Gamma(alpha_0, beta_0),
+            pre_weight_layers=nn.Sequential(
+                nn.Linear(p, 128), 
+                nn.LeakyReLU(),
+                nn.Linear(128, p), 
+                nn.LeakyReLU()
+            )
         )
 
     @property
