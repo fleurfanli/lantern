@@ -111,7 +111,7 @@ class VariationalBasis(Basis, Variational):
         # embed
         z = torch.matmul(x, W)
         # add non-linearity
-        z = relu(z)
+        z = torch.tanh(z)
 
         return z, loss
 
