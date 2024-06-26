@@ -41,7 +41,7 @@ class _Base(TensorDataset):
             )
 
     def hello(self):
-        message = "Hii, on branch lfan2 using NEW model w/ language model embeddings as inputs!"
+        message = "Hii, on branch lfan2 - added ReLU!"
         print("Hello!!")
         return message
 
