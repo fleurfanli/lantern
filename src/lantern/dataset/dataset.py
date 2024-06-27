@@ -41,7 +41,7 @@ class _Base(TensorDataset):
             )
 
     def hello(self):
-        message = "Hii, on branch lfan2 - added non-linear layers before GP!"
+        message = "Hii, on branch lfan2 - modified loss to penalize bias!"
         print("Hello!!")
         return message
 
