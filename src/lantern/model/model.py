@@ -1,5 +1,6 @@
 import attr
 import gpytorch
+import torch
 
 from lantern import Module
 from lantern.model.surface import Surface
@@ -30,7 +31,18 @@ class Model(Module):
 
         return f
 
-    def loss(self, *args, **kwargs):
-        return self.basis.loss(*args, **kwargs) + ELBO_GP.fromModel(
-            self, *args, **kwargs
-        )
+    # def loss(self, *args, **kwargs):
+    #     return self.basis.loss(*args, **kwargs) + ELBO_GP.fromModel(
+    #         self, *args, **kwargs
+    #     )
+
+    def loss(self, output, target, *args, **kwargs):
+        basis_loss = self.basis.loss(*args, **kwargs)
+        elbo_loss = ELBO_GP.fromModel(self, *args, **kwargs)
+
+        # compute the bias penalty
+        predicted_mean = output.mean
+        bias_penalty = torch.mean((predicted_mean - target) ** 2)
+
+        total_loss = basis_loss + elbo_loss + 0.5 * bias_penalty
+        return total_loss
