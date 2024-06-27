@@ -36,13 +36,17 @@ class Model(Module):
     #         self, *args, **kwargs
     #     )
 
-    def loss(self, output, target, *args, **kwargs):
+    def loss(self, output=None, target=None, *args, **kwargs):
         basis_loss = self.basis.loss(*args, **kwargs)
         elbo_loss = ELBO_GP.fromModel(self, *args, **kwargs)
 
         # compute the bias penalty
-        predicted_mean = output.mean
-        bias_penalty = torch.mean((predicted_mean - target) ** 2)
+        if output is None or target is None:
+            print('output is None or target is None')
+            bias_penalty = 0
+        else:
+            predicted_mean = output.mean
+            bias_penalty = torch.mean((predicted_mean - target) ** 2)
 
         total_loss = basis_loss + elbo_loss + 0.5 * bias_penalty
         return total_loss
