@@ -7,7 +7,7 @@ from gpytorch.variational import IndependentMultitaskVariationalStrategy
 from gpytorch.means import ConstantMean, Mean
 from gpytorch.kernels import ScaleKernel, RQKernel, Kernel
 import torch
-
+from torch.nn.functional import sigmoid 
 
 from lantern.model.surface import Surface
 
@@ -87,7 +87,8 @@ class Functional(ApproximateGP, Surface):
         """
         mean_x = self.mean(z)
         covar_x = self.kernel(z)
-        return MultivariateNormal(mean_x, covar_x)
+        # use sigmoid to return probabilities for binary classification
+        return MultivariateNormal(sigmoid(mean_x), covar_x)
 
     @classmethod
     def fromDataset(cls, Z, ds, *args, **kwargs):
