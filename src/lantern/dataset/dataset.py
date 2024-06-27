@@ -94,7 +94,7 @@ class _Base(TensorDataset):
         """
         if self.language:
             # using language model embeddings
-            return self.embed.shape[1] / 4
+            return self.embed.shape[1] 
         else:
             return self.tokenizer.p
 
