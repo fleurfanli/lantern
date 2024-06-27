@@ -41,7 +41,7 @@ class _Base(TensorDataset):
             )
 
     def hello(self):
-        message = "Hii, on branch lfan2 - added pre-W layers!"
+        message = "Hii, on branch lfan2 - added non-linear layers before GP!"
         print("Hello!!")
         return message
 
@@ -94,7 +94,7 @@ class _Base(TensorDataset):
         """
         if self.language:
             # using language model embeddings
-            return self.embed.shape[1]
+            return self.embed.shape[1] / 4
         else:
             return self.tokenizer.p
 

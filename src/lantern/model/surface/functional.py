@@ -7,6 +7,8 @@ from gpytorch.variational import IndependentMultitaskVariationalStrategy
 from gpytorch.means import ConstantMean, Mean
 from gpytorch.kernels import ScaleKernel, RQKernel, Kernel
 import torch
+from torch import nn
+from torch.nn.functional import leaky_relu
 
 
 from lantern.model.surface import Surface
@@ -24,6 +26,9 @@ class Functional(ApproximateGP, Surface):
 
     variational_strategy: VariationalStrategy = attr.ib()
 
+    # Placeholder for non-linear layers
+    nonlinear_layers: nn.Sequential = attr.ib(init=False)
+
     def __attrs_post_init__(self):
 
         # hack to deal with circular inits
@@ -35,6 +40,19 @@ class Functional(ApproximateGP, Surface):
             object.__setattr__(
                 self.variational_strategy.base_variational_strategy, "model", self
             )
+        # Initialize non-linear layers
+        self._initialize_nonlinear_layers()
+
+    def _initialize_nonlinear_layers(self):
+        in_features = self.Z.shape[1]
+        hidden_units = 2 * in_features
+        out_features = self.K
+        self.nonlinear_layers = nn.Sequential(
+            nn.Linear(in_features, hidden_units),
+            nn.ReLU(),
+            nn.Linear(hidden_units, out_features),
+            nn.LeakyReLU()
+        )
 
     @property
     def M(self):
@@ -85,6 +103,8 @@ class Functional(ApproximateGP, Surface):
     def forward(self, z):
         """The forward prediction of the functional phenotype for a position in latent phenotype space.
         """
+        # transform z w/ the non-linear layers
+        z = self.nonlinear_layers(z)
         mean_x = self.mean(z)
         covar_x = self.kernel(z)
         return MultivariateNormal(mean_x, covar_x)

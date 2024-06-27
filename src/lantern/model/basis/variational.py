@@ -20,12 +20,6 @@ class VariationalBasis(Basis, Variational):
     log_beta: nn.Parameter = attr.ib()
     alpha_prior: Gamma = attr.ib()
 
-    pre_weight_layers: nn.Sequential = attr.ib(factory=lambda: nn.Sequential(
-        nn.Linear(1280, 128),  # You need to adjust input/output dimensions
-        nn.LeakyReLU(),
-        nn.Linear(1280, 128),
-        nn.LeakyReLU()
-    ))
 
     @classmethod
     def fromDataset(cls, ds, K, alpha_0=0.001, beta_0=0.001, meanEffectsInit=False):
@@ -50,13 +44,7 @@ class VariationalBasis(Basis, Variational):
             W_log_sigma=nn.Parameter(torch.randn(p, K) - 3),
             log_alpha=log_alpha,
             log_beta=log_beta,
-            alpha_prior=Gamma(alpha_0, beta_0),
-            pre_weight_layers=nn.Sequential(
-                nn.Linear(p, 128), 
-                nn.LeakyReLU(),
-                nn.Linear(128, p), 
-                nn.LeakyReLU()
-            )
+            alpha_prior=Gamma(alpha_0, beta_0)
         )
 
     @classmethod
@@ -76,13 +64,7 @@ class VariationalBasis(Basis, Variational):
             W_log_sigma=nn.Parameter(torch.randn(p, K) - 3),
             log_alpha=log_alpha,
             log_beta=log_beta,
-            alpha_prior=Gamma(alpha_0, beta_0),
-            pre_weight_layers=nn.Sequential(
-                nn.Linear(p, 128), 
-                nn.LeakyReLU(),
-                nn.Linear(128, p), 
-                nn.LeakyReLU()
-            )
+            alpha_prior=Gamma(alpha_0, beta_0)
         )
 
     @property
@@ -123,8 +105,6 @@ class VariationalBasis(Basis, Variational):
         return klW, kla, W, alpha
 
     def _forward(self, x):
-
-        x = self.pre_weight_layers(x)
 
         klW, kla, W, alpha = self.kl_loss()
         loss = klW.sum() + kla.sum()
