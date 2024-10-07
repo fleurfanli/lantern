@@ -137,12 +137,12 @@ class Functional(ApproximateGP, Surface):
         """
 
         # number of fixed dims plus provided K
-        Ktotal = Z.shape[1] + K
+        # Ktotal = Z.shape[1] + K
 
         if D > 1:
-            shape = (D, Ni, Ktotal)
+            shape = (D, Ni, Z.shape[1])
         else:
-            shape = (Ni, Ktotal)
+            shape = (Ni, Z.shape[1])
 
         inducing_points = -inducScale + 2 * inducScale * torch.rand(*shape)
 
