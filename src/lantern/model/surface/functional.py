@@ -5,7 +5,7 @@ from gpytorch.variational import VariationalStrategy
 from gpytorch.distributions import MultivariateNormal
 from gpytorch.variational import IndependentMultitaskVariationalStrategy
 from gpytorch.means import ConstantMean, Mean
-from gpytorch.kernels import ScaleKernel, RQKernel, Kernel
+from gpytorch.kernels import PolynomialKernel, ScaleKernel, RQKernel, Kernel
 import torch
 
 
@@ -165,27 +165,13 @@ class Functional(ApproximateGP, Surface):
         if mean is None:
             mean = ConstantMean(batch_shape=size)
         if kernel is None:
-            # rq component
+            # polynomial(quadratic) kernel for pairwise interactions
             if D > 1:
-                k1 = RQKernel(
-                    ard_num_dims=K, active_dims=range(K), batch_shape=torch.Size([D])
-                )
-                k2 = RQKernel(
-                    ard_num_dims=Z.shape[1],
-                    active_dims=range(K, Ktotal),
-                    batch_shape=torch.Size([D]),
-                )
+                kernel = PolynomialKernel(power=2, batch_shape=torch.Size([D]))
             else:
-                k1 = RQKernel(ard_num_dims=K, active_dims=range(K))
-                k2 = RQKernel(ard_num_dims=Z.shape[1], active_dims=range(K, Ktotal))
+                kernel = PolynomialKernel(power=2)
 
-            # no lengthscale for basis dimensions
-            if k1.has_lengthscale:
-                k1.raw_lengthscale.requires_grad = False
-
-            kernel = k1 * k2
-
-            # scale component
+            # optionally apply ScaleKernel for scaling
             if D > 1:
                 kernel = ScaleKernel(kernel, batch_shape=torch.Size([D]))
             else:
