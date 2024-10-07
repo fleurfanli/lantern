@@ -5,7 +5,7 @@ from gpytorch.variational import VariationalStrategy
 from gpytorch.distributions import MultivariateNormal
 from gpytorch.variational import IndependentMultitaskVariationalStrategy
 from gpytorch.means import ConstantMean, Mean
-from gpytorch.kernels import ScaleKernel, RQKernel, Kernel
+from gpytorch.kernels import ScaleKernel, PolynomialKernel, Kernel
 import torch
 
 
@@ -146,15 +146,13 @@ class Phenotype(ApproximateGP, Surface):
         if mean is None:
             mean = ConstantMean(batch_shape=size)
         if kernel is None:
-            # rq component
+            # polynomial(quadratic) kernel for pairwise interactions
             if D > 1:
-                kernel = RQKernel(ard_num_dims=K, batch_shape=torch.Size([D]))
+                kernel = PolynomialKernel(power=2, batch_shape=torch.Size([D]))
             else:
-                kernel = RQKernel(ard_num_dims=K)
-            if kernel.has_lengthscale:
-                kernel.raw_lengthscale.requires_grad = False
+                kernel = PolynomialKernel(power=2)
 
-            # scale component
+            # optionally apply ScaleKernel for scaling
             if D > 1:
                 kernel = ScaleKernel(kernel, batch_shape=torch.Size([D]))
             else:
