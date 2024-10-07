@@ -25,8 +25,11 @@ class Model(Module):
 
     def forward(self, X):
 
-        Z = self.basis(X)
-        f = self.surface(Z)
+        # Z = self.basis(X)
+        # f = self.surface(Z)
+
+        # use polynomial kernel directly on binary vector inputs
+        f = self.surface(X)
 
         return f
 
