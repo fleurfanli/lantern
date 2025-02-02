@@ -33,13 +33,13 @@ class Phenotype(ApproximateGP, Surface):
     dataset: Dataset = attr.ib()
     K: int = attr.ib()
 
-    mean: Mean = attr.ib(default=None)
-    kernel: Kernel = attr.ib(default=None)
-    variational_strategy: VariationalStrategy = attr.ib(default=None)
+    mean: Mean = attr.ib()
+    kernel: Kernel = attr.ib()
+    variational_strategy: VariationalStrategy = attr.ib()
 
     def __attrs_post_init__(self):
         # Explicitly call ApproximateGP's __init__ to properly initialize the GP
-        ApproximateGP.__init__(self, self.variational_strategy)  
+        # ApproximateGP.__init__(self, self.variational_strategy)  
 
         # hack to deal with circular inits
         if self.D == 1:
