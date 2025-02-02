@@ -39,7 +39,15 @@ class Phenotype(ApproximateGP, Surface):
     variational_strategy: VariationalStrategy = attr.ib()
 
     def __attrs_post_init__(self):
-        ApproximateGP.__init__(self, self.variational_strategy)  # Ensure GP initialization
+        # Explicitly call ApproximateGP's __init__ to properly initialize the GP
+        ApproximateGP.__init__(self, self.variational_strategy)  
+
+        # Ensure `mean` and `kernel` exist before using them
+        if not hasattr(self, "mean") or self.mean is None:
+            self.mean = ConstantMean(batch_shape=torch.Size([]))  # Default mean function
+        
+        if not hasattr(self, "kernel") or self.kernel is None:
+            self.kernel = ScaleKernel(RQKernel(ard_num_dims=self.K))  # Default kernel
         
         # hack to deal with circular inits
         if self.D == 1:
