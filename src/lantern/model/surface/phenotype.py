@@ -39,7 +39,8 @@ class Phenotype(ApproximateGP, Surface):
     variational_strategy: VariationalStrategy = attr.ib()
 
     def __attrs_post_init__(self):
-
+        ApproximateGP.__init__(self, self.variational_strategy)  # Ensure GP initialization
+        
         # hack to deal with circular inits
         if self.D == 1:
             # self.variational_strategy.model = self
