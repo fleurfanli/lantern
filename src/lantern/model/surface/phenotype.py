@@ -33,11 +33,9 @@ class Phenotype(ApproximateGP, Surface):
     dataset: Dataset = attr.ib()
     K: int = attr.ib()
 
-    # Set defaults for mean and kernel directly in the class declaration
     mean: Mean = attr.ib(default=None)
     kernel: Kernel = attr.ib(default=None)
-
-    variational_strategy: VariationalStrategy = attr.ib()
+    variational_strategy: VariationalStrategy = attr.ib(default=None)
 
     def __attrs_post_init__(self):
         # Explicitly call ApproximateGP's __init__ to properly initialize the GP
