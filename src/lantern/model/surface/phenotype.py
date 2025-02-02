@@ -35,7 +35,9 @@ class Phenotype(ApproximateGP, Surface):
 
     # Set defaults for mean and kernel directly in the class declaration
     mean: Mean = attr.ib(default=ConstantMean(batch_shape=torch.Size([])))
-    kernel: Kernel = attr.ib(default=ScaleKernel(RQKernel(ard_num_dims=K)))
+    kernel: Kernel = attr.ib(
+        default=ScaleKernel(RQKernel(ard_num_dims=K, batch_shape=torch.Size([D]))) if D > 1 else ScaleKernel(RQKernel(ard_num_dims=K))
+    )
 
     variational_strategy: VariationalStrategy = attr.ib()
 
@@ -146,21 +148,21 @@ class Phenotype(ApproximateGP, Surface):
         if D > 1:
             strat = IndependentMultitaskVariationalStrategy(strat, num_tasks=D)
 
-        # if mean is None:
-        mean = ConstantMean(batch_shape=size)
-        # if kernel is None:
-        # rq component
-        if D > 1:
-            kernel = RQKernel(ard_num_dims=K, batch_shape=torch.Size([D]))
-        else:
-            kernel = RQKernel(ard_num_dims=K)
-        if kernel.has_lengthscale:
-            kernel.raw_lengthscale.requires_grad = False
+        if mean is None:
+            mean = ConstantMean(batch_shape=size)
+        if kernel is None:
+            # rq component
+            if D > 1:
+                kernel = RQKernel(ard_num_dims=K, batch_shape=torch.Size([D]))
+            else:
+                kernel = RQKernel(ard_num_dims=K)
+            if kernel.has_lengthscale:
+                kernel.raw_lengthscale.requires_grad = False
 
-        # scale component
-        if D > 1:
-            kernel = ScaleKernel(kernel, batch_shape=torch.Size([D]))
-        else:
-            kernel = ScaleKernel(kernel)
+            # scale component
+            if D > 1:
+                kernel = ScaleKernel(kernel, batch_shape=torch.Size([D]))
+            else:
+                kernel = ScaleKernel(kernel)
 
         return cls(D, ds, K, mean, kernel, strat, *args, **kwargs)
