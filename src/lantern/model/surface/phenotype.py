@@ -34,10 +34,8 @@ class Phenotype(ApproximateGP, Surface):
     K: int = attr.ib()
 
     # Set defaults for mean and kernel directly in the class declaration
-    mean: Mean = attr.ib(default=ConstantMean(batch_shape=torch.Size([])))
-    kernel: Kernel = attr.ib(
-        default=ScaleKernel(RQKernel(ard_num_dims=K, batch_shape=torch.Size([D]))) if D > 1 else ScaleKernel(RQKernel(ard_num_dims=K))
-    )
+    mean: Mean = attr.ib(default=None)
+    kernel: Kernel = attr.ib(default=None)
 
     variational_strategy: VariationalStrategy = attr.ib()
 
