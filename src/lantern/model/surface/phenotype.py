@@ -42,11 +42,11 @@ class Phenotype(ApproximateGP, Surface):
         # Explicitly call ApproximateGP's __init__ to properly initialize the GP
         ApproximateGP.__init__(self, self.variational_strategy)  
 
-        # Ensure `mean` and `kernel` exist before using them
-        if not hasattr(self, "mean") or self.mean is None:
+        # Ensure `mean` and `kernel` are initialized correctly
+        if self.mean is None:
             self.mean = ConstantMean(batch_shape=torch.Size([]))  # Default mean function
-        
-        if not hasattr(self, "kernel") or self.kernel is None:
+            
+        if self.kernel is None:
             self.kernel = ScaleKernel(RQKernel(ard_num_dims=self.K))  # Default kernel
         
         # hack to deal with circular inits
@@ -152,21 +152,21 @@ class Phenotype(ApproximateGP, Surface):
         if D > 1:
             strat = IndependentMultitaskVariationalStrategy(strat, num_tasks=D)
 
-        if mean is None:
-            mean = ConstantMean(batch_shape=size)
-        if kernel is None:
-            # rq component
-            if D > 1:
-                kernel = RQKernel(ard_num_dims=K, batch_shape=torch.Size([D]))
-            else:
-                kernel = RQKernel(ard_num_dims=K)
-            if kernel.has_lengthscale:
-                kernel.raw_lengthscale.requires_grad = False
+        # if mean is None:
+        mean = ConstantMean(batch_shape=size)
+        # if kernel is None:
+        # rq component
+        if D > 1:
+            kernel = RQKernel(ard_num_dims=K, batch_shape=torch.Size([D]))
+        else:
+            kernel = RQKernel(ard_num_dims=K)
+        if kernel.has_lengthscale:
+            kernel.raw_lengthscale.requires_grad = False
 
-            # scale component
-            if D > 1:
-                kernel = ScaleKernel(kernel, batch_shape=torch.Size([D]))
-            else:
-                kernel = ScaleKernel(kernel)
+        # scale component
+        if D > 1:
+            kernel = ScaleKernel(kernel, batch_shape=torch.Size([D]))
+        else:
+            kernel = ScaleKernel(kernel)
 
         return cls(D, ds, K, mean, kernel, strat, *args, **kwargs)
