@@ -35,9 +35,9 @@ class Phenotype(ApproximateGP, Surface):
 
     mean: Mean = attr.ib()
     kernel: Kernel = attr.ib()
-    
+
     variational_strategy: VariationalStrategy = attr.ib()
-    _priors = attr.ib(default=attr.Factory(dict), init=False)
+    # _priors = attr.ib(default=attr.Factory(dict), init=False)
 
     def __attrs_post_init__(self):
         # Explicitly call ApproximateGP's __init__ to properly initialize the GP
