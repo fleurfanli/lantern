@@ -38,12 +38,14 @@ class _Base(TensorDataset):
                 f"Number of error columns ({len(value)}) does not match phenotype columns ({len(self.phenotypes)})"
             )
 
+
     def __attrs_post_init__(self):
 
         # Extract components from the dataframe. These will be
         # used to construct the needed tensors.
         substitutions = self.df[self.substitutions].replace(np.nan, "")
         phenotypes = self.df[self.phenotypes]
+        log_con = self.df["log_con"]  # Extract the log_con column
         if self.errors is not None:
             errors = self.df[self.errors]
         else:
@@ -60,6 +62,12 @@ class _Base(TensorDataset):
         # build tensors
         X = self.tokenizer.tokenize(*substitutions.tolist())
         y = torch.from_numpy(phenotypes.values).float()
+
+        # Convert log_con to a tensor and reshape it to match the dimensions of X
+        log_con_tensor = torch.from_numpy(log_con.values).float().unsqueeze(1)
+
+        # Concatenate log_con_tensor to the leftmost position of X
+        X = torch.cat([log_con_tensor, X], dim=1)
 
         if errors is not None:
             n = torch.from_numpy(errors.values).float()
