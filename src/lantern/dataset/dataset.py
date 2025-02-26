@@ -117,9 +117,9 @@ class _DataframeDataset:
 
 @attr.s()
 class Dataset(_DataframeDataset, _Base):
-    """The runtime option for datasets, taking a dataframe as the first argument.
-    
-    """
+    """The runtime option for datasets, taking a dataframe as the first argument."""
+
+    tokenizer: Tokenizer = attr.ib(default=None)  # Add tokenizer as an argument
 
     @classmethod
     def from_sequences(
@@ -128,6 +128,7 @@ class Dataset(_DataframeDataset, _Base):
         wildtype: str,
         sequence_column: str = "sequence",
         substitutions="substitutions",
+        tokenizer=None,  # Add tokenizer as an argument
         *args,
         **kwargs,
     ):
@@ -142,7 +143,7 @@ class Dataset(_DataframeDataset, _Base):
             )
         )
 
-        return cls(df, *args, **kwargs)
+        return cls(df, substitutions=substitutions, tokenizer=tokenizer, *args, **kwargs)
 
 
 @attr.s()
